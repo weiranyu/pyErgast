@@ -3,6 +3,10 @@ name = "pyErgast"
 version = "0.1.0"
 description = "Python pandas wrapper for the Ergast F1 API"
 authors = ["Weiran Yu <weiranyu@hotmail.com>"]
+readme = "README.md"
+documentation = 'https://pyergast.readthedocs.io/en/latest/'
+homepage = "https://github.com/weiranyu/pyErgast"
+repository = "https://github.com/weiranyu/pyErgast"
 
 [tool.poetry.dependencies]
 python = "^3.7"
