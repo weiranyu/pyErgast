@@ -706,7 +706,7 @@ def constructor_standings(year=None, race=None):
     """
     if year and race:
         assert year >= 1958, 'Constructor standings only available starting 1958'
-        url = 'http://ergast.com/api/f1/{}/constructorStandings.json?limit=1000'.format(year, race)
+        url = 'http://ergast.com/api/f1/{}/{}/constructorStandings.json?limit=1000'.format(year, race)
     elif year:
         assert year >= 1958, 'Constructor standings only available starting 1958'
         url = 'http://ergast.com/api/f1/{}/constructorStandings.json?limit=1000'.format(year, race)
