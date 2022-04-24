@@ -881,3 +881,91 @@ def unpack_lists(driver):
         if isinstance(driver[key], dict):
             result.append(driver[key])
     return result
+
+def get_sprint_result(year=None, race=None):
+    """
+    Queries the API to return sprint results in a pandas dataframe format.
+    By default this method returns the most recent sprint result
+
+    Parameters
+    ----------
+    year: int
+        An optional parameter that specifies the year to be queried.
+    race: int
+        An optional parameter that specifies the round of a year to be queried.
+
+    Returns
+    -------
+    pandas.DataFrame
+
+    Index:
+        RangeIndex
+
+    Columns:
+        number: int
+        position: int
+        positionText: str
+        grid: int
+        points: int
+        driverID: str
+        driver: str
+        nationality: str
+        constructorID: str
+        constructor: str
+        laps: int
+        status: str
+        Time: dict
+
+    Example
+    -------
+    >>> pyergast.get_sprint_result()
+       number position positionText grid  ...     constructor laps    status                                        Time
+    0       1        1            1    1  ...        Red Bull   21  Finished  {'millis': '1839567', 'time': '30:39.567'}
+    1      16        2            2    2  ...         Ferrari   21  Finished     {'millis': '1842542', 'time': '+2.975'}
+    2      11        3            3    7  ...        Red Bull   21  Finished     {'millis': '1844288', 'time': '+4.721'}
+    3      55        4            4   10  ...         Ferrari   21  Finished    {'millis': '1857145', 'time': '+17.578'}
+    4       4        5            5    3  ...         McLaren   21  Finished    {'millis': '1864128', 'time': '+24.561'}
+    5       3        6            6    6  ...         McLaren   21  Finished    {'millis': '1867307', 'time': '+27.740'}
+    6      77        7            7    8  ...      Alfa Romeo   21  Finished    {'millis': '1867700', 'time': '+28.133'}
+    7      20        8            8    4  ...    Haas F1 Team   21  Finished    {'millis': '1870279', 'time': '+30.712'}
+    8      14        9            9    5  ...  Alpine F1 Team   21  Finished    {'millis': '1871845', 'time': '+32.278'}
+    9      47       10           10   12  ...    Haas F1 Team   21  Finished    {'millis': '1873340', 'time': '+33.773'}
+    10     63       11           11   11  ...        Mercedes   21  Finished    {'millis': '1875851', 'time': '+36.284'}
+    11     22       12           12   16  ...      AlphaTauri   21  Finished    {'millis': '1877865', 'time': '+38.298'}
+    12      5       13           13    9  ...    Aston Martin   21  Finished    {'millis': '1879744', 'time': '+40.177'}
+    13     44       14           14   13  ...        Mercedes   21  Finished    {'millis': '1881026', 'time': '+41.459'}
+    14     18       15           15   15  ...    Aston Martin   21  Finished    {'millis': '1882477', 'time': '+42.910'}
+    15     31       16           16   19  ...  Alpine F1 Team   21  Finished    {'millis': '1883084', 'time': '+43.517'}
+    16     10       17           17   17  ...      AlphaTauri   21  Finished    {'millis': '1883361', 'time': '+43.794'}
+    17     23       18           18   20  ...        Williams   21  Finished    {'millis': '1888438', 'time': '+48.871'}
+    18      6       19           19   18  ...        Williams   21  Finished    {'millis': '1891584', 'time': '+52.017'}
+    19     24       20            R    0  ...      Alfa Romeo    0   Retired                                         NaN
+
+    [20 rows x 13 columns]
+    """
+    if year or race:
+        assert year and race, 'You must specify both a year and a race'
+        url = 'http://ergast.com/api/f1/{}/{}/sprint.json?limit=1000'.format(year, race)
+    else:
+        url = 'http://ergast.com/api/f1/current/last/sprint.json?limit=1000'
+
+    r = requests.get(url)
+    assert r.status_code == 200, 'Cannot connect to Ergast API. Check your inputs.'
+    sprint_result = r.json()
+    result_dict = sprint_result["MRData"]['RaceTable']['Races'][0]['SprintResults']
+
+    # Unpack the lists of dicts in result_dict and reformat the result
+    for driver in result_dict:
+        drive_dict = unpack_lists(driver)
+        driver_info = drive_dict[0]
+        constructor_info = drive_dict[1]
+        driver['driver'] = driver_info['givenName'] + ' ' + driver_info['familyName']
+        driver['driverID'] = driver_info['driverId']
+        driver['nationality'] = driver_info['nationality']
+        driver['constructor'] = constructor_info['name']
+        driver['constructorID'] = constructor_info['constructorId']
+
+    # Select the columns that are relevant to the sprint result
+    cols = ['number', 'position', 'positionText', 'grid', 'points', 'driverID', 'driver',
+            'nationality', 'constructorID', 'constructor', 'laps', 'status', 'Time']
+    return pd.DataFrame(result_dict)[cols]

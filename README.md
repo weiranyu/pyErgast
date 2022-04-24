@@ -39,13 +39,16 @@ pyergast.get_constructors(2005)
 pyergast.get_circuits(1976)
 ```
 
-### Obtaining Race and Qualifying Results
+### Obtaining Race, Sprint, and Qualifying Results
 ```python
 # Last race result
 pyergast.get_race_result()
 
 # Qualifying result of the 3rd race of 1996
 pyergast.get_qualifying_result(1996, 3)
+
+# Sprint result for the 4th race of 2022
+pyergast.get_sprint_result(2022, 4)
 ```
 
 ### Obtaining Season Schedules
