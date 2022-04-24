@@ -74,3 +74,7 @@ def test_query_constructor():
     actual = pyergast.query_constructor('ferrari').shape
     assert expected == actual, 'Should be (63, 9)'
 
+def test_get_sprint_result():
+    expected = 1
+    actual = pyergast.get_sprint_result(2022, 4)['number'][0]
+    assert expected == actual, 'Number 1 should have won'
